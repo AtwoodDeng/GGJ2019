@@ -27,8 +27,6 @@ namespace AtStudio.GGJ2019
         public SpriteRenderer rockTex;
         [FoldoutGroup("Main")]
         public Catcher[] catchers;
-        //[FoldoutGroup("Main")]
-        //public Transform light;
         [FoldoutGroup("Control")]
         public float RotateSpeed = 100f;
 
@@ -42,9 +40,6 @@ namespace AtStudio.GGJ2019
 
         [FoldoutGroup("Control")][ReadOnly]
         public Vector3 rocketUp = Vector3.up;
-        //[FoldoutGroup("Control")]
-        //[ReadOnly]
-        //public Vector3 lightUp = Vector3.up;
         [FoldoutGroup("Control")]
         [ReadOnly]
         public Vector3 velocity;
@@ -58,6 +53,28 @@ namespace AtStudio.GGJ2019
         [FoldoutGroup("Control")]
         [ReadOnly]
         public Vector3 catchPoint;
+        [FoldoutGroup("Control")]
+        [ReadOnly]
+        public Vector3 flyTo;
+
+
+        [FoldoutGroup("Heal")]
+        public float maxHealth = 150f;
+        [FoldoutGroup("Heal")]
+        [ReadOnly]
+        public float realHealth = 100f;
+        [FoldoutGroup("Heal")]
+        [ReadOnly]
+        public float temHealth = 100f;
+        [FoldoutGroup("Heal")]
+        public List<LightCombo> lightList = new List<LightCombo>();
+        [FoldoutGroup("Heal")]
+        AnimationCurve lightCurve = new AnimationCurve();
+        [FoldoutGroup("Heal")]
+        public float healthReducePreSecond = 3.3f;
+
+
+
 
         [FoldoutGroup("Audio")]
         public AudioInfo rotateShipSound = new AudioInfo();
@@ -69,7 +86,6 @@ namespace AtStudio.GGJ2019
         public AudioInfo rotateCatcherSound = new AudioInfo();
         [FoldoutGroup("Audio")]
         public AudioInfo pushCatcherSound = new AudioInfo();
-
 
 
         public Rigidbody2D _rigidbody;
@@ -93,6 +109,7 @@ namespace AtStudio.GGJ2019
         public void Start()
         {
             rocketUp = rockTex == null ? Vector3.up : rockTex.transform.up;
+            temHealth = 100f;
             //lightUp = light == null ? Vector3.up: light.transform.up;
         }
 
@@ -101,6 +118,54 @@ namespace AtStudio.GGJ2019
             UpdateControl();
             UpdateVisual();
             UpdateSound();
+            UpdateHealthAndLight();
+        }
+
+        [System.Serializable]
+        public class LightCombo
+        {
+            public DynamicLight2D.DynamicLight dynamicLight;
+            public Light light;
+            public float originDynamicLightIntensity = 1f;
+            public float originLightIntensity = 1f;
+
+            public void ApplyIntensity( float rate )
+            {
+                dynamicLight.Intensity = originDynamicLightIntensity * rate;
+                light.intensity = originLightIntensity * rate;
+            }
+
+            public LightCombo( DynamicLight2D.DynamicLight dl , Light l )
+            {
+                dynamicLight = dl;
+                light = l;
+                originDynamicLightIntensity = dynamicLight.Intensity;
+                originLightIntensity = light.intensity;
+            }
+
+            [Button]
+            public void Refresh()
+            {
+                originDynamicLightIntensity = dynamicLight.Intensity;
+                originLightIntensity = light.intensity;
+
+            }
+        }
+
+        public void UpdateHealthAndLight()
+        {
+
+            var pushShip = MPlayerManager.Instance.PushShip;
+            if ( pushShip)
+                temHealth -= healthReducePreSecond * Time.deltaTime;
+
+
+            realHealth = Mathf.Lerp(realHealth, temHealth, 5f * Time.deltaTime);
+            float rate = lightCurve.Evaluate(realHealth / 100f );
+            foreach(var lc in lightList )
+            {
+                lc.ApplyIntensity( rate );
+            }
         }
 
         public void UpdateSound()
@@ -119,6 +184,10 @@ namespace AtStudio.GGJ2019
                 {
                     pushShipSound.Play(gameObject);
                 }
+                if (MPlayerManager.Instance.PushCatcher.WasPressed)
+                {
+                    pushCatcherSound.Play(gameObject);
+                }
             }
         }
 
@@ -134,27 +203,34 @@ namespace AtStudio.GGJ2019
                 //lightUp = Quaternion.AngleAxis( rotateLight * RotateSpeed * Time.deltaTime, Vector3.back) * lightUp;
 
                 var vel = m_rigidbody.velocity;
+
+                bool isFlyTo = flyTo.magnitude > 0;
+
                 if ( pushShip )
                 {
-                    vel += FromV3(transform.up) * pushForce * Time.deltaTime; 
+                    vel += FromV3(transform.up) * (isFlyTo? 0.2f : 1f) * pushForce * Time.deltaTime; 
+
                 }
 
-                vel = Vector3.ClampMagnitude(vel, maxSpeed);
+                if ( flyTo.magnitude > 0 )
+                {
+                    vel += FromV3(flyTo) * Time.deltaTime;
+                }
+
+                vel = Vector3.ClampMagnitude(vel, (isFlyTo? 2f : 1f ) * maxSpeed);
                 vel = vel * Mathf.Clamp01(1f - drag * Time.deltaTime);
 
                 m_rigidbody.velocity = vel;
 
                 var angleVel = m_rigidbody.angularVelocity;
 
-                angleVel += rotateship * RotateSpeed;
+                angleVel += rotateship * - RotateSpeed;
 
                 angleVel = Mathf.Clamp(angleVel, -maxAngleSpeed, maxAngleSpeed);
                 angleVel = angleVel * Mathf.Clamp01(1f - rotateDrag * Time.deltaTime);
 
                 m_rigidbody.angularVelocity = angleVel;
             }
-
-
         }
 
         public void UpdateVisual()
@@ -162,35 +238,55 @@ namespace AtStudio.GGJ2019
             if (rockTex != null)
             {
                 rockTex.transform.up = rocketUp;
-
             }
-
-            //if ( light != null )
-            //{
-            //    light.transform.up = lightUp;
-            //}
         }
 
+        public void FlyTo( Vector3 toPos )
+        {
+            var vel = m_rigidbody.velocity;
+            vel += FromV3(toPos) * pushForce * Time.deltaTime;
 
+            vel = Vector3.ClampMagnitude(vel, maxSpeed);
+            vel = vel * Mathf.Clamp01(1f - drag * Time.deltaTime);
+
+            m_rigidbody.velocity = vel;
+        }
 
         public void OnTriggerEnter2D(Collider2D collision)
         {
-            // Debug.Log("On Trigger Enter");
             if (collision.tag.Equals("Mine"))
             {
                 var mine = collision.GetComponent<Mine>();
-                
-                foreach( var catcher in catchers )
+
+                if (mine.type != Mine.MineType.Dead)
                 {
-                    if ( catcher.handTrigger.IsTouching( collision ) )
+                    foreach (var catcher in catchers)
                     {
-                        catcher.Caught(mine);
+                        if (catcher.handTrigger.IsTouching(collision))
+                        {
+                            catcher.Caught(mine);
+                        }
                     }
                 }
 
 
             }
 
+        }
+
+        public void OnCollisionEnter2D(Collision2D collision)
+        {
+            if ( collision.collider.tag.Equals("Hurt"))
+            {
+
+                Debug.Log("Hurt");
+            }
+        }
+
+        public void CollectMine( Mine mine )
+        {
+            if ( mine != null )
+                temHealth += mine.GetHealth();
         }
 
 

@@ -88,13 +88,13 @@
 		{
 			var actions = new PlayerActions();
 
-			actions.RotateShipClock.AddDefaultBinding( InputControlType.LeftTrigger );
-            actions.RotateShipAClock.AddDefaultBinding(InputControlType.RightTrigger);
-            actions.PushShip.AddDefaultBinding( InputControlType.Action1 );
+			actions.RotateShipClock.AddDefaultBinding( InputControlType.DPadLeft);
+            actions.RotateShipAClock.AddDefaultBinding(InputControlType.DPadRight);
+            actions.PushShip.AddDefaultBinding( InputControlType.Action1);
 
-			actions.RotateCatcherClock.AddDefaultBinding( InputControlType.LeftTrigger );
-            actions.RotateCatcherAClock.AddDefaultBinding(InputControlType.RightTrigger );
-            actions.PushCatcher.AddDefaultBinding( InputControlType.Action1 );
+			actions.RotateCatcherClock.AddDefaultBinding( InputControlType.DPadLeft );
+            actions.RotateCatcherAClock.AddDefaultBinding(InputControlType.DPadRight );
+            actions.PushCatcher.AddDefaultBinding( InputControlType.Action1);
 
 
             actions.RotateCatcherClock.AddDefaultBinding(InputControlType.LeftStickLeft);

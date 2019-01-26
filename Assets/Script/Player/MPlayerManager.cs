@@ -52,7 +52,7 @@
         {
             get
             {
-                return playerTwo.Actions.PushShip;
+                return playerOne.Actions.PushShip;
             }
         }
 
@@ -71,7 +71,7 @@
         {
             get
             {
-                return playerOne.Actions.PushCatcher;
+                return playerTwo.Actions.PushCatcher;
             }
         }
 

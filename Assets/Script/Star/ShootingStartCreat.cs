@@ -54,9 +54,28 @@ public class ShootingStartCreat : MonoBehaviour {
 
     Vector3 GetRandomPosition()
     {
-        float pos_x = Random.Range(-10.0f, 11.0f);
-        float pos_y = Random.Range(10.0f, 16.0f);
-        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector2(Screen.height / 2, Screen.width / 2));
+        float pos_x = Random.Range(-5.0f, 6.0f);
+        float pos_y = Random.Range(-5.0f, 6.0f);
+        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width / 2, Screen.height / 2));
+        float height = Camera.main.pixelHeight / 64f * 0.5f + 1f;
+        float width = height * Camera.main.aspect + 1f;
+
+        if (pos_y < 0)
+        {
+            pos.y -= height;
+        }
+        else
+        {
+            pos.y += height;
+        }
+        if (pos_x < 0)
+        {
+            pos.x -= width;
+        }
+        else
+        {
+            pos.x += width;
+        }
         pos.x += pos_x;
         pos.y += pos_y;
         pos.z = 0f;

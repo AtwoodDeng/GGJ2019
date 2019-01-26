@@ -10,11 +10,12 @@ namespace AtStudio.GGJ2019
         public enum MineType
         {
             Normal,
-            Special
+            Special,
+            Dead,
         }
 
         public MineType type;
-
+        public float healthGain = 20f;
         
 
         private void Start()
@@ -25,19 +26,33 @@ namespace AtStudio.GGJ2019
         virtual public void Caught( Catcher catcher )
         {
             Debug.Log("Mine caught by " + catcher);
-            transform.parent = catcher.hand.transform;
+
+            var collider = gameObject.GetComponent<Collider2D>();
+            if (collider != null)
+                collider.enabled = false;
+            //transform.parent = catcher.hand.transform;
         }
 
         virtual public void Collect( Catcher catcher )
         {
-            transform.parent = catcher.transform;
+            //transform.parent = catcher.transform;
             transform.localScale = Vector3.zero;
+            type = MineType.Dead;
+            var collider = gameObject.GetComponent<Collider2D>();
+            if (collider != null)
+                collider.enabled = false;
+            // gameObject.active = false;
         }
 
         virtual public void Release( Catcher catcher )
         {
             transform.parent = null;
 
+        }
+
+        virtual public float GetHealth()
+        {
+            return healthGain;
         }
     }
 }

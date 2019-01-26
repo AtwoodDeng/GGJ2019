@@ -7,7 +7,9 @@ namespace AtStudio.GGJ2019
 {
     public class Catcher : MonoBehaviour
     {
+        public HomeShip parent;
         public Transform hand;
+        public Transform handCenter;
         public SpriteRenderer rope;
         public Transform light;
         [ReadOnly]
@@ -23,6 +25,7 @@ namespace AtStudio.GGJ2019
         public Vector3 handUpWorld;
         public float RotateSpeed = 100f;
         public float pushSpeed = 5f;
+        public float flySpeed = 2f;
         public float backSpeed = 1f;
         public float backOffset = 0.1f;
         [ReadOnly]
@@ -56,6 +59,7 @@ namespace AtStudio.GGJ2019
             Push,
             Caught,
             Back,
+            Fly,
         }
         CatcherState state;
 
@@ -109,35 +113,35 @@ namespace AtStudio.GGJ2019
 
         public void UpdateRopeAndLight()
         {
-
             if (state == CatcherState.None)
             {
-                rope.size = new Vector2(0.2f, 0);
+                rope.size = new Vector2(0.3f, 0);
+                light.transform.up = toHand.normalized;
             }
             else
             {
-                rope.size = new Vector2(0.2f, toHand.magnitude);
-
+                float ropeLength = (handCenter.transform.position - handOrigiPosWorld).magnitude;
+                rope.size = new Vector2(0.3f, ropeLength * 2f );
             }
 
 
             rope.transform.up = toHand.normalized;
-            light.transform.up = toHand.normalized;
+
         }
 
         public void UpdateHand()
         {
+            parent.flyTo = Vector3.zero;
+
             if ( state == CatcherState.None )
             {
                 hand.transform.position = handOrigiPosWorld;
 
                 toHand = hand.transform.up;
-
-                rope.size = new Vector2(0.2f, 0);
             }
             else if ( state == CatcherState.Push )
             {
-                hand.transform.position += velocity * Time.deltaTime;
+                hand.transform.position = preHandPos + velocity * Time.deltaTime;
 
                 toHand = (hand.transform.position - handOrigiPosWorld);
                 hand.transform.up = toHand.normalized;
@@ -149,20 +153,41 @@ namespace AtStudio.GGJ2019
                     Caught();
             }else if ( state == CatcherState.Caught )
             {
-                state = CatcherState.Back;
-            }else if ( state == CatcherState.Back)
+                state = CatcherState.Fly;
+            }else if ( state == CatcherState.Fly)
             {
-                toHand = hand.transform.position - handOrigiPosWorld;
 
-                Vector3 backHand = - toHand * backSpeed * Time.deltaTime;
+                toHand = temMine.transform.position - handOrigiPosWorld;
+
+                
+                hand.transform.position = temMine.transform.position;
+                //Vector3 backHand = - toHand * backSpeed * Time.deltaTime;
+                //backHand = Vector3.ClampMagnitude(backHand, pushSpeed * 2f);
+
+                //toHand *= (1f - backSpeed * Time.deltaTime);
+                //hand.transform.position = handOrigiPosWorld + toHand;
+
+                Vector3 flyTo = toHand * flySpeed;
+
+                parent.flyTo = flyTo;
+
+                hand.transform.up = toHand.normalized;
+
+                if (toHand.magnitude < backOffset)
+                    Back();
+            }
+            if (state == CatcherState.Back)
+            {
+
+                toHand = preHandPos - handOrigiPosWorld;
+
+                Vector3 backHand = -toHand * backSpeed * Time.deltaTime;
                 backHand = Vector3.ClampMagnitude(backHand, pushSpeed * 2f);
 
                 toHand *= (1f - backSpeed * Time.deltaTime);
                 hand.transform.position = handOrigiPosWorld + toHand;
 
                 hand.transform.up = toHand.normalized;
-                //rope.transform.up = toHand.normalized;
-                //rope.size = new Vector2(0.2f, toHand.magnitude);
 
                 if (toHand.magnitude < backOffset)
                     Back();
@@ -177,7 +202,7 @@ namespace AtStudio.GGJ2019
         {
 
             // handUpLocal = Quaternion.AngleAxis(rotate * RotateSpeed * Time.deltaTime, Vector3.forward) * handUpLocal ;
-            handUpWorld = Quaternion.AngleAxis(rotate * RotateSpeed * Time.deltaTime, Vector3.forward) * handUpWorld;
+            handUpWorld = Quaternion.AngleAxis(rotate * RotateSpeed * Time.deltaTime, Vector3.back) * handUpWorld;
 
             //if (limitAngle > 0)
             //{
@@ -191,14 +216,14 @@ namespace AtStudio.GGJ2019
             //hand.transform.up = transform.TransformVector(handUpLocal);
 
 
-            if ( limitAngle > 0 )
-            {
-                var angle = Vector3.SignedAngle(transform.up, handUpWorld, Vector3.forward);
-                if (angle > limitAngle * 0.5f)
-                    handUpWorld = Quaternion.AngleAxis(limitAngle * 0.5f, Vector3.forward) * transform.up;
-                if (angle < -limitAngle * 0.5f)
-                    handUpLocal = Quaternion.AngleAxis(-limitAngle * 0.5f, Vector3.forward) * oriLocalUp;
-            }
+            //if ( limitAngle > 0 )
+            //{
+            //    var angle = Vector3.SignedAngle(transform.up, handUpWorld, Vector3.forward);
+            //    if (angle > limitAngle * 0.5f)
+            //        handUpWorld = Quaternion.AngleAxis(limitAngle * 0.5f, Vector3.forward) * transform.up;
+            //    if (angle < -limitAngle * 0.5f)
+            //        handUpLocal = Quaternion.AngleAxis(-limitAngle * 0.5f, Vector3.forward) * oriLocalUp;
+            //}
 
             hand.transform.up = handUpWorld;
         }
@@ -214,24 +239,34 @@ namespace AtStudio.GGJ2019
         {
             if (state == CatcherState.Push)
             {
-                state = CatcherState.Caught;
 
                 if ( mine != null )
                 {
                     temMine = mine;
                     temMine.Caught(this);
+                    state = CatcherState.Caught;
+                }
+                else
+                {
+                    state = CatcherState.Back;
                 }
             }
         }
 
         public void Back()
         {
-            if (state == CatcherState.Back)
+            if (state == CatcherState.Back || state == CatcherState.Fly)
             {
+                Debug.Log("Back");
                 state = CatcherState.None;
 
                 if (temMine != null)
                     temMine.Collect(this);
+
+                if (parent != null)
+                    parent.CollectMine(temMine);
+
+                temMine = null;
             }
         }
     }
