@@ -27,6 +27,7 @@
         }
 
         public bool IsMutiPlayer;
+        public bool IsDoubleCatcher;
 
         public bool PlayersReady
         {
@@ -38,6 +39,60 @@
                 return players.Count >= 1;
             }
         }
+
+        public PlayerOneAxisAction RotateShip
+        {
+            get
+            {
+                return playerOne.Actions.RotateShip;
+            }
+        }
+
+        public PlayerAction PushShip
+        {
+            get
+            {
+                return playerTwo.Actions.PushShip;
+            }
+        }
+
+        public PlayerOneAxisAction RotateCatcher
+        {
+            get
+            {
+                if (IsDoubleCatcher)
+                    return playerOne.Actions.RotateCatcher;
+                return playerTwo.Actions.RotateCatcher;
+            }
+        }
+
+
+        public PlayerAction PushCatcher
+        {
+            get
+            {
+                return playerOne.Actions.PushCatcher;
+            }
+        }
+
+
+        public PlayerOneAxisAction RotateCatcher2
+        {
+            get
+            {
+                return playerTwo.Actions.RotateCatcher;
+            }
+        }
+
+
+        public PlayerAction PushCatcher2
+        {
+            get
+            {
+                return playerTwo.Actions.PushCatcher;
+            }
+        }
+
 
         public MPlayer playerOne
         {

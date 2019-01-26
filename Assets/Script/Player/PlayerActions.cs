@@ -9,11 +9,21 @@
         public PlayerAction RotateShipClock;
         public PlayerAction RotateShipAClock;
 		public PlayerAction PushShip;
+
 		public PlayerOneAxisAction RotateCatcher;
         public PlayerAction RotateCatcherClock;
         public PlayerAction RotateCatcherAClock;
-
         public PlayerAction PushCatcher;
+
+        //public PlayerOneAxisAction RotateCatcher2;
+        //public PlayerAction RotateCatcherClock2;
+        //public PlayerAction RotateCatcherAClock2;
+        //public PlayerAction PushCatcher2;
+
+        public PlayerOneAxisAction RotateLight;
+        public PlayerAction RotateLightClock;
+        public PlayerAction RotateLightAClock;
+
 		public PlayerAction Left;
 		public PlayerAction Right;
 		public PlayerAction Up;
@@ -29,10 +39,20 @@
             RotateShipAClock = CreatePlayerAction("RotateShipAClock");
             RotateShip = CreateOneAxisPlayerAction( RotateShipClock, RotateShipAClock);
 			PushShip = CreatePlayerAction( "PushShip" );
+
             RotateCatcherClock = CreatePlayerAction("RotateCatcherClock");
             RotateCatcherAClock = CreatePlayerAction("RotateCatcherAClock");
             RotateCatcher = CreateOneAxisPlayerAction(RotateCatcherClock, RotateCatcherAClock);
-			PushCatcher = CreatePlayerAction( "YPushCatcher" );
+            PushCatcher = CreatePlayerAction("PushCatcher");
+
+            //RotateCatcherClock2 = CreatePlayerAction("RotateCatcherClock2");
+            //RotateCatcherAClock2 = CreatePlayerAction("RotateCatcherAClock2");
+            //RotateCatcher2 = CreateOneAxisPlayerAction(RotateCatcherClock2, RotateCatcherAClock2);
+            //PushCatcher2 = CreatePlayerAction("PushCatcher2");
+
+            RotateLightClock = CreatePlayerAction("RotateLightClock");
+            RotateLightAClock = CreatePlayerAction("RotateLightAClock");
+            RotateLight = CreateOneAxisPlayerAction(RotateLightClock, RotateLightAClock);
 			Left = CreatePlayerAction( "Left" );
 			Right = CreatePlayerAction( "Right" );
 			Up = CreatePlayerAction( "Up" );
@@ -70,12 +90,27 @@
 
 			actions.RotateShipClock.AddDefaultBinding( InputControlType.LeftTrigger );
             actions.RotateShipAClock.AddDefaultBinding(InputControlType.RightTrigger);
-            actions.PushShip.AddDefaultBinding( InputControlType.Action2 );
-			actions.RotateCatcherClock.AddDefaultBinding( InputControlType.LeftBumper );
-            actions.RotateCatcherAClock.AddDefaultBinding(InputControlType.RightBumper);
-            actions.PushCatcher.AddDefaultBinding( InputControlType.Action4 );
+            actions.PushShip.AddDefaultBinding( InputControlType.Action1 );
 
-			actions.Up.AddDefaultBinding( InputControlType.LeftStickUp );
+			actions.RotateCatcherClock.AddDefaultBinding( InputControlType.LeftTrigger );
+            actions.RotateCatcherAClock.AddDefaultBinding(InputControlType.RightTrigger );
+            actions.PushCatcher.AddDefaultBinding( InputControlType.Action1 );
+
+
+            actions.RotateCatcherClock.AddDefaultBinding(InputControlType.LeftStickLeft);
+            actions.RotateCatcherAClock.AddDefaultBinding(InputControlType.LeftStickRight);
+            actions.PushCatcher.AddDefaultBinding(InputControlType.LeftStickButton);
+
+
+
+            //actions.RotateCatcherClock2.AddDefaultBinding(InputControlType.LeftStickLeft);
+            //actions.RotateCatcherAClock2.AddDefaultBinding(InputControlType.LeftStickRight);
+            //actions.PushCatcher2.AddDefaultBinding(InputControlType.LeftStickButton);
+
+            actions.RotateLightClock.AddDefaultBinding(InputControlType.LeftStickLeft);
+            actions.RotateLightAClock.AddDefaultBinding(InputControlType.LeftStickRight);
+
+            actions.Up.AddDefaultBinding( InputControlType.LeftStickUp );
 			actions.Down.AddDefaultBinding( InputControlType.LeftStickDown );
 			actions.Left.AddDefaultBinding( InputControlType.LeftStickLeft );
 			actions.Right.AddDefaultBinding( InputControlType.LeftStickRight );
@@ -85,7 +120,7 @@
 			actions.Left.AddDefaultBinding( InputControlType.DPadLeft );
 			actions.Right.AddDefaultBinding( InputControlType.DPadRight );
 
-            actions.joinGame.AddDefaultBinding(InputControlType.Action1);
+            actions.joinGame.AddDefaultBinding(InputControlType.TouchPadButton);
 
 			return actions;
 		}

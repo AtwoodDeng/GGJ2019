@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Mine
   layers:
   - Default
   - TransparentFX
@@ -40,4 +41,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Back
+    uniqueID: 1543927729
+    locked: 0
+  - name: Light
+    uniqueID: 3921588841
+    locked: 0
+  - name: FX
+    uniqueID: 3913585949
     locked: 0
