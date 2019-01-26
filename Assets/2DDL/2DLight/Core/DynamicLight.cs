@@ -57,6 +57,9 @@ namespace DynamicLight2D
 				{
 						public int Compare(Vert x, Vert y)
 						{
+                if (x == null || y == null)
+                    return 0;
+                    
 								if (x.angle < y.angle)
 										return 1; 
                                 

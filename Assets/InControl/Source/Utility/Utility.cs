@@ -451,14 +451,15 @@ namespace InControl
 		public static string HKLM_GetString( string path, string key )
 		{
 			try
-			{ 
-				return "";
-				// var rk = null; // Microsoft.Win32.Registry.LocalMachine.OpenSubKey( path );
-				// if (rk == null)
-				// {
-				// 	return "";
-				// }
-				// return (string) rk.GetValue( key );
+
+			{
+                Debug.Log("get rk ");
+                var rk = Microsoft.Win32.Registry.LocalMachine.OpenSubKey( path );
+                if (rk == null)
+                {
+                    return "";
+				}
+			    return (string) rk.GetValue( key );
 			}
 			catch
 			{

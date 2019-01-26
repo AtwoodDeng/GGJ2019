@@ -51,7 +51,6 @@ namespace InControl
 			"InControl.NativeProfile.HoriRealArcadeProVXMacProfile",
 			"InControl.NativeProfile.HoriRealArcadeProVXSAMacProfile",
 			"InControl.NativeProfile.HoriXbox360GemPadExMacProfile",
-			"InControl.NativeProfile.HoriXboxOneControllerMacProfile",
 			"InControl.NativeProfile.HyperkinX91MacProfile",
 			"InControl.NativeProfile.InjusticeFightStickMacProfile",
 			"InControl.NativeProfile.IonDrumRockerMacProfile",
